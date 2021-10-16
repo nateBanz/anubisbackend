@@ -2,7 +2,8 @@
   "name": "anubisbackend",
   "version": "0.0.0",
   "engines": {
-    "node": "16.3.0"
+    "node": "16.3.0",
+    "npm": "7.15.1"
   },
   "private": true,
   "scripts": {
