@@ -1,14 +1,11 @@
 # In[1]:
 import sys
-import datetime as dt
-import time as time
 import joblib
 import pandas as pd
 import json
 import flatten_json as fj
-import sklearn.impute as impute
 import sklearn.preprocessing as scale
-import sklearn.ensemble as rf
+
 
 data = json.loads((sys.argv[1]))
 updatedDf = pd.read_csv('dfForAnubis.csv')
@@ -18,8 +15,6 @@ inputData = {}  # This will be what is flattened
 dict_flattened = [fj.flatten(data, '.', root_keys_to_ignore={'topHeroes', 'quickPlayStats', 'icon', 'ratingIcon',
                                                              'levelIcon', 'prestigeIcon', 'endorsement',
                                                              'endorsementIcon'})]
-
-
 df = pd.DataFrame(dict_flattened)
 
 

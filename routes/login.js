@@ -3,8 +3,6 @@ let router = express.Router();
 let firebase = require('firebase')
 let fetch = require('node-fetch')
 const {PythonShell} = require('python-shell')
-const {python} = require('pythonia')
-
 
 require("firebase/auth")
 
@@ -19,11 +17,7 @@ const firebaseConfig = {
     appId: "1:745868178409:web:8e7e26aa3d73d2a5d8d178"
 };
 firebase.initializeApp(firebaseConfig)
-async function tensor(request) {
-    const tf = await python('tensorflow')
-    const model = await tf.keras.models.load_model('anubisModel.h5')
-    let answer = model.predict(request.tensorData)
-}
+
 async function getInfo(fullTag) {
 
     try {
