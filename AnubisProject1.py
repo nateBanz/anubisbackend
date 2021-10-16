@@ -79,17 +79,11 @@ df.drop_duplicates(inplace=True)
 df = df.loc[:, ~df.columns.str.startswith('ratings.0.roleIcon')];
 df = df.loc[:, ~df.columns.str.startswith('ratings.1.roleIcon')];
 df = df.loc[:, ~df.columns.str.startswith('ratings.2.roleIcon')];
-
-
-
-
-
 df.dropna(subset=['competitiveStats.awards.cards'], inplace=True)
 df.dropna(axis=1, how='all', inplace=True)
 df.rename(columns={'ratings.0.level': 'tankLevel'}, inplace=True)
 df.rename(columns={'ratings.1.level': 'dpsLevel'}, inplace=True)
 df.rename(columns={'ratings.2.level': 'supportLevel'}, inplace=True)
-
 df = df.loc[:, ~df.columns.str.startswith('ratings.0.role')];
 df = df.loc[:, ~df.columns.str.startswith('ratings.1.role')];
 df = df.loc[:, ~df.columns.str.startswith('ratings.2.role')];
@@ -122,7 +116,8 @@ XTestScaled = XTestScaled.reshape(1,-1)
 
 random = joblib.load('AnubisForest')
 prediction = random.predict(XTestScaled)
-print(prediction)
+prediction = prediction.tolist()
+print(json.dumps(prediction))
 # predictiontf = model.predict(XTestScaled)
 
 nameModifier = 'competitiveStats.careerStats.allHeroes.average.'
@@ -163,9 +158,15 @@ for var in importantFactors:
         current = df[combo].mean()
     if var_mean != 0:
         if var_mean > current:
-            bottomStats.append((var, percent))
+            if 'deaths' in var:
+                topStats.append((var, percent))
+            else:
+                bottomStats.append((var, percent))
         if var_mean < current:
-            topStats.append((var, percent))
+            if 'deaths' in var:
+                bottomStats.append((var, percent))
+            else:
+                topStats.append((var, percent))
 top = dict(sorted(topStats, key=lambda item: item[1], reverse=True))
 bottom = dict(sorted(bottomStats, key=lambda item: item[1], reverse=True))
 
