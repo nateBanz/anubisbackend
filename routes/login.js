@@ -21,7 +21,6 @@ firebase.initializeApp(firebaseConfig)
 async function getInfo(fullTag) {
 
     try {
-
         const encodedURI = encodeURI("https://ow-api.com/v1/stats/pc/us/" + fullTag + "/complete");
         let res = await fetch(encodedURI);
         let data = await res.json()
@@ -36,6 +35,14 @@ async function getInfo(fullTag) {
         console.log(error)
     }
 
+}
+
+async function getBattleTag(id) {
+    console.log(id)
+    let res = firebase.database().ref('/users/' + id)
+    let value = await res.once('value')
+    console.log(value.child('tag').exists())
+    return value.val().tag
 }
 async function returnCardText(text) {
     let res = firebase.database().ref('OverallMetrics').child(text.title)
@@ -75,16 +82,21 @@ async function addTextInfo () {
 async function logout() {
     await firebase.auth().signOut()
 }
+async function setBattleTag(id, battletag) {
+    await firebase.database().ref('/users/' + id).update(
+        {tag: battletag}
+    )
+}
 
 async function addUserToFirebase(result) {
     let signIn = {signIn: false, result: result.user.uid}
 
-     // if(result.additionalUserInfo.isNewUser) {
+       if(result.additionalUserInfo.isNewUser) {
          signIn.signIn = true
-         await firebase.database().ref('/users/' + result.user.uid).set(
+         await firebase.database().ref('/users/' + result.user.uid).update(
              {email: result.user.email}
          )
-     //}
+      }
     return signIn
 }
 let login = async (googleUser) => {
@@ -107,6 +119,61 @@ let login = async (googleUser) => {
     return info
 }
 
+router.post('/loggedPython', async function(req, res){
+    if (req && req.body.hasOwnProperty('battleTag')) {
+        let battleTag = req.body.battleTag
+        let id = req.body.userId
+        let info = await getInfo(battleTag)
+        if(info.includes('error')) {
+            res.send(info)
+        }
+
+        else {
+            await setBattleTag(id, battleTag)
+            let options = {
+                pythonPath: '/Users/natesmac/opt/anaconda3/envs/tf/bin/python',
+                args: [info] //An argument which can be accessed in the script using sys.argv[1]
+            };
+
+            PythonShell.run('AnubisProject1.py', options, function (err, result) {
+                if (err) res.send(err);
+                // result is an array consisting of messages collected
+                //during execution of script.
+                console.log('result: ', result.toString());
+                res.send(result)
+            });
+        }
+
+    }
+    // EDIT THIS
+    else {
+        let id = req.body.userId
+        let battleTag = await getBattleTag(id)
+        console.log(battleTag)
+        let info = await getInfo(battleTag)
+        if(info.includes('error')) {
+            res.send(info)
+        }
+        else {
+            let options = {
+                pythonPath: '/Users/natesmac/opt/anaconda3/envs/tf/bin/python',
+                args: [info] //An argument which can be accessed in the script using sys.argv[1]
+            };
+
+            PythonShell.run('AnubisProject1.py', options, function (err, result) {
+                if (err) throw err;
+                // result is an array consisting of messages collected
+                //during execution of script.
+                console.log('result: ', result.toString());
+                res.send(result)
+            });
+
+        }
+
+    }
+})
+
+
 router.post('/', async function(req, res, next) {
     if (req && req.body.hasOwnProperty('id_token')) {
         let firstLogin = await login(req.body.id_token)
@@ -125,22 +192,32 @@ router.post('/', async function(req, res, next) {
     }
 })
 
+
+
 router.post('/python', async function(req, res){
     if (req && req.body.hasOwnProperty('fullTag')) {
         let battletag = req.body.fullTag
+        let id = req.body.userId
         let info = await getInfo(battletag)
-        let options = {
-            pythonPath: '/Users/natesmac/opt/anaconda3/envs/tf/bin/python',
-            args: [info] //An argument which can be accessed in the script using sys.argv[1]
-        };
 
-        PythonShell.run('AnubisProject1.py', options, function (err, result) {
-            if (err) throw err;
-            // result is an array consisting of messages collected
-            //during execution of script.
-            console.log('result: ', result.toString());
-            res.send(result)
-        });
+        if(info.includes('error')) {
+            res.send(info)
+        }
+        else {
+            await setBattleTag(id, battletag)
+            let options = {
+                pythonPath: '/Users/natesmac/opt/anaconda3/envs/tf/bin/python',
+                args: [info] //An argument which can be accessed in the script using sys.argv[1]
+            };
+
+            PythonShell.run('AnubisProject1.py', options, function (err, result) {
+                if (err) throw err;
+                // result is an array consisting of messages collected
+                //during execution of script.
+                console.log('result: ', result.toString());
+                res.send(result)
+            });
+        }
     }
 })
 
