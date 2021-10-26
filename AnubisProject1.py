@@ -58,6 +58,7 @@ remove2 = ["bastion", "symmetra", "torbjorn", "sombra", "roadhog"]
 
 for el in remove2:
     df = df.loc[:, ~df.columns.str.startswith("competitiveStats.careerStats." + el)]
+print(df.shape)
 
 df = df.loc[:, ~df.columns.str.startswith("competitiveStats.topHeroes")]
 
@@ -89,7 +90,7 @@ col = df.columns.values.tolist()
 df.drop("name", 1, inplace=True)
 df.drop("private", 1, inplace=True)
 
-common = (df.columns & upDf.columns)
+
 
 scalar = scale.StandardScaler()
 
@@ -101,6 +102,10 @@ clean_xtest = df.drop(["tankLevel", "dpsLevel", "supportLevel", "rating"], axis=
 y = df[["tankLevel", "dpsLevel", "supportLevel"]]
 print(json.dumps(y.values.tolist()))
 final_xtest = clean_xtest.select_dtypes(include="number")
+
+common = (final_xtest.columns & upDf.columns)
+
+final_xtest = final_xtest.reindex(common.tolist(), axis=1)
 
 imputer.fit(final_xtest)
 XTest = imputer.transform(final_xtest)

@@ -47,7 +47,10 @@ async function getBattleTag(id) {
 async function returnCardText(text) {
     let res = firebase.database().ref('OverallMetrics').child(text.title)
     let cat = await res.once('value')
-    return cat.val().summary
+    if(cat.val()) {
+        return cat.val().summary
+    }
+
 }
 
 async function addTextInfo () {
@@ -99,23 +102,41 @@ async function addUserToFirebase(result) {
       }
     return signIn
 }
-let login = async (googleUser) => {
+let login = async (googleUser, username = undefined, password = undefined) => {
     let info = {};
 
-    let credential = firebase.auth.GoogleAuthProvider.credential(
-        googleUser);
+    if(googleUser) {
+        let credential = firebase.auth.GoogleAuthProvider.credential(
+            googleUser);
 
 
-    try {// Sign in with credential from the Google user.
-        let res = await firebase.auth().signInWithCredential(credential)
+        try {// Sign in with credential from the Google user.
+            let res = await firebase.auth().signInWithCredential(credential)
 
-        let final = await addUserToFirebase(res)
-        if (final) {
-            info = final
+            let final = await addUserToFirebase(res)
+            if (final) {
+                info = final
+            }
+        } catch (error) {
+            return {error: error}
         }
-    } catch (error) {
-        return {error: error}
+
     }
+
+    else if(username && password) {
+
+        try {
+            let res = await firebase.auth().signInWithEmailAndPassword(username, password)
+            let final = await addUserToFirebase(res)
+            if (final) {
+               info = final
+            }
+        }
+        catch(error) {
+            return {error: error}
+        }
+    }
+
     return info
 }
 
@@ -175,21 +196,23 @@ router.post('/loggedPython', async function(req, res){
 
 
 router.post('/', async function(req, res, next) {
+    let firstLogin;
     if (req && req.body.hasOwnProperty('id_token')) {
-        let firstLogin = await login(req.body.id_token)
-        if (firstLogin && firstLogin.hasOwnProperty('result')) {
-            if (firstLogin.signIn === true)
-                res.json({firstLogin: firstLogin, screenName: 'SetBattleTagScreen', userId: firstLogin.result})
-            else if (firstLogin.signIn === false) {
-                res.json({firstLogin: firstLogin, screenName: 'RankingScreen', userId: firstLogin.result})
-            }
-        } else
-            res.json(firstLogin)
+        firstLogin = await login(req.body.id_token)
+    }
+    else if(req && req.body.hasOwnProperty('username')) {
+         firstLogin = await login(req.body.username, req.body.password)
+    }
 
-    }
-    else {
-        res.json('No request')
-    }
+    if (firstLogin && firstLogin.hasOwnProperty('result')) {
+        if (firstLogin.signIn === true)
+            res.json({firstLogin: firstLogin, screenName: 'SetBattleTagScreen', userId: firstLogin.result})
+        else if (firstLogin.signIn === false) {
+            res.json({firstLogin: firstLogin, screenName: 'RankingScreen', userId: firstLogin.result})
+        }
+    } else
+        res.json(firstLogin)
+
 })
 
 
