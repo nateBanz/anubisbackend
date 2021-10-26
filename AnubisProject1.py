@@ -58,7 +58,7 @@ remove2 = ["bastion", "symmetra", "torbjorn", "sombra", "roadhog"]
 
 for el in remove2:
     df = df.loc[:, ~df.columns.str.startswith("competitiveStats.careerStats." + el)]
-print(df.shape)
+
 
 df = df.loc[:, ~df.columns.str.startswith("competitiveStats.topHeroes")]
 
