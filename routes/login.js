@@ -152,7 +152,6 @@ router.post('/loggedPython', async function(req, res){
         else {
             await setBattleTag(id, battleTag)
             let options = {
-                pythonPath: '/Users/natesmac/opt/anaconda3/envs/tf/bin/python',
                 args: [info] //An argument which can be accessed in the script using sys.argv[1]
             };
 
