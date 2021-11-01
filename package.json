@@ -21,5 +21,6 @@
     "python-shell": "^3.0.0"
   },
   "devDependencies": {
+    "firebase-admin": "^10.0.0"
   }
 }

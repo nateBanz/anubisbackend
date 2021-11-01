@@ -1,22 +1,33 @@
 let express = require('express');
 let router = express.Router();
-let firebase = require('firebase')
+// let firebase = require('firebase')
 let fetch = require('node-fetch')
 const {PythonShell} = require('python-shell')
+let admin = require("firebase-admin");
 
-require("firebase/auth")
+
+// require("firebase/auth")
 
 /* GET users listing. */
-const firebaseConfig = {
-    apiKey: "AIzaSyBifKFLyeb5Qm71HtCyJ7LnI7_ot8RPsvE",
-    authDomain: "anubis-c9edb.firebaseapp.com",
-    databaseURL: "https://anubis-c9edb-default-rtdb.firebaseio.com",
-    projectId: "anubis-c9edb",
-    storageBucket: "anubis-c9edb.appspot.com",
-    messagingSenderId: "745868178409",
-    appId: "1:745868178409:web:8e7e26aa3d73d2a5d8d178"
-};
-firebase.initializeApp(firebaseConfig)
+// const firebaseConfig = {
+//     apiKey: "AIzaSyBifKFLyeb5Qm71HtCyJ7LnI7_ot8RPsvE",
+//     authDomain: "anubis-c9edb.firebaseapp.com",
+//     databaseURL: "https://anubis-c9edb-default-rtdb.firebaseio.com",
+//     projectId: "anubis-c9edb",
+//     storageBucket: "anubis-c9edb.appspot.com",
+//     messagingSenderId: "745868178409",
+//     appId: "1:745868178409:web:8e7e26aa3d73d2a5d8d178"
+// };
+const serviceAccount = JSON.parse(process.env.GOOGLE_CREDS);
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://anubis-c9edb-default-rtdb.firebaseio.com"
+});
+
+const db = admin.database()
+
+// firebase.initializeApp(firebaseConfig)
 
 async function getInfo(fullTag) {
 
@@ -34,18 +45,17 @@ async function getInfo(fullTag) {
     catch(error){
         console.log(error)
     }
-
 }
 
 async function getBattleTag(id) {
     console.log(id)
-    let res = firebase.database().ref('/users/' + id)
+    let res = db.ref('/users/' + id)
     let value = await res.once('value')
     console.log(value.child('tag').exists())
     return value.val().tag
 }
 async function returnCardText(text) {
-    let res = firebase.database().ref('OverallMetrics').child(text.title)
+    let res = db.ref('OverallMetrics').child(text.title)
     let cat = await res.once('value')
     if(cat.val()) {
         return cat.val().summary
@@ -76,27 +86,26 @@ async function addTextInfo () {
 
     ]
     for(let metric of dataArray) {
-        await firebase.database().ref('/OverallMetrics/' + metric.name).set(
+        await db.ref('/OverallMetrics/' + metric.name).set(
             {summary: metric.summary}
         )
     }
 
 }
 async function logout() {
-    await firebase.auth().signOut()
+    await db.signOut()
 }
 async function setBattleTag(id, battletag) {
-    await firebase.database().ref('/users/' + id).update(
+    await db.ref('/users/' + id).update(
         {tag: battletag}
     )
 }
-
 async function addUserToFirebase(result) {
     let signIn = {signIn: false, result: result.user.uid}
 
        if(result.additionalUserInfo.isNewUser) {
          signIn.signIn = true
-         await firebase.database().ref('/users/' + result.user.uid).update(
+         await db.ref('/users/' + result.user.uid).update(
              {email: result.user.email}
          )
       }
