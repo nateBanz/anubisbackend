@@ -18,9 +18,10 @@
     "morgan": "~1.9.1",
     "node-fetch": "^2.6.1",
     "pug": "^2.0.4",
-    "python-shell": "^3.0.0"
+    "python-shell": "^3.0.0",
+    "firebase-admin": "^10.0.0"
   },
   "devDependencies": {
-    "firebase-admin": "^10.0.0"
+
   }
 }
