@@ -47,6 +47,7 @@ async function getInfo(fullTag) {
     }
 }
 
+
 async function getBattleTag(id) {
     console.log(id)
     let res = db.ref('/users/' + id)
@@ -101,15 +102,20 @@ async function setBattleTag(id, battletag) {
     )
 }
 async function addUserToFirebase(result) {
-    let signIn = {signIn: false, result: result.user.uid}
 
-       if(result.additionalUserInfo.isNewUser) {
-         signIn.signIn = true
-         await db.ref('/users/' + result.user.uid).update(
-             {email: result.user.email}
-         )
-      }
-    return signIn
+    let signIn = {signIn: false, result: result.user.uid}
+    try {
+        if (result.additionalUserInfo.isNewUser) {
+            signIn.signIn = true
+            await db.ref('/users/' + result.user.uid).update(
+                {email: result.user.email}
+            )
+        }
+        return signIn
+    }
+    catch (e) {
+        return e
+    }
 }
 let login = async (googleUser, username = undefined, password = undefined) => {
     let info = {};
@@ -219,6 +225,14 @@ router.post('/', async function(req, res, next) {
         }
     } else
         res.json(firstLogin)
+
+})
+
+router.post('/addToFirebase', async function(req, res, next) {
+
+    if (req && req.body.hasOwnProperty('user')) {
+        let res = await addUserToFirebase(req.body.user)
+    }
 
 })
 
