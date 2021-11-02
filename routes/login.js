@@ -231,7 +231,8 @@ router.post('/', async function(req, res, next) {
 router.post('/addToFirebase', async function(req, res, next) {
 
     if (req && req.body.hasOwnProperty('user')) {
-        let res = await addUserToFirebase(req.body.user)
+        let response = await addUserToFirebase(req.body.user)
+        res.send(response)
     }
 
 })
