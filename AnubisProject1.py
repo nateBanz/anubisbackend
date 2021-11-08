@@ -33,7 +33,7 @@ remove = ["ana",
           "hanzo",
           "junkrat",
           "lucio",
-          "mccree",
+          "cassidy",
           "mei",
           "mercy",
           "moira",
@@ -70,7 +70,6 @@ df = df.loc[:, ~df.columns.str.startswith("ratings.0.rankIcon")];
 df = df.loc[:, ~df.columns.str.startswith("ratings.1.rankIcon")];
 df = df.loc[:, ~df.columns.str.startswith("ratings.2.rankIcon")];
 df = df.loc[:, ~df.columns.str.startswith("error")];
-
 df.drop_duplicates(inplace=True)
 df = df.loc[:, ~df.columns.str.startswith("ratings.0.roleIcon")];
 df = df.loc[:, ~df.columns.str.startswith("ratings.1.roleIcon")];
@@ -83,18 +82,11 @@ df.rename(columns={"ratings.2.level": "supportLevel"}, inplace=True)
 df = df.loc[:, ~df.columns.str.startswith("ratings.0.role")];
 df = df.loc[:, ~df.columns.str.startswith("ratings.1.role")];
 df = df.loc[:, ~df.columns.str.startswith("ratings.2.role")];
-
 col = df.columns.values.tolist()
-
-
 df.drop("name", 1, inplace=True)
 df.drop("private", 1, inplace=True)
 
-
-
 scalar = scale.StandardScaler()
-
-
 scaler = joblib.load("AnubisScalar")
 imputer = joblib.load("AnubisImputer")
 
@@ -102,11 +94,8 @@ clean_xtest = df.drop(["tankLevel", "dpsLevel", "supportLevel", "rating"], axis=
 y = df[["tankLevel", "dpsLevel", "supportLevel"]]
 print(json.dumps(y.values.tolist()))
 final_xtest = clean_xtest.select_dtypes(include="number")
-
 common = (final_xtest.columns & upDf.columns)
-
 final_xtest = final_xtest.reindex(common.tolist(), axis=1)
-
 imputer.fit(final_xtest)
 XTest = imputer.transform(final_xtest)
 x_x = pd.DataFrame(XTest, columns=final_xtest.columns, index=final_xtest.index)
