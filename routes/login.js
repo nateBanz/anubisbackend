@@ -5,30 +5,13 @@ let fetch = require('node-fetch')
 const {PythonShell} = require('python-shell')
 let admin = require("firebase-admin");
 
-
-// require("firebase/auth")
-
-/* GET users listing. */
-// const firebaseConfig = {
-//     apiKey: "AIzaSyBifKFLyeb5Qm71HtCyJ7LnI7_ot8RPsvE",
-//     authDomain: "anubis-c9edb.firebaseapp.com",
-//     databaseURL: "https://anubis-c9edb-default-rtdb.firebaseio.com",
-//     projectId: "anubis-c9edb",
-//     storageBucket: "anubis-c9edb.appspot.com",
-//     messagingSenderId: "745868178409",
-//     appId: "1:745868178409:web:8e7e26aa3d73d2a5d8d178"
-// };
-console.log(process.env.GOOGLE_CREDS)
-const serviceAccount = {"type":"service_account","project_id":"anubis-c9edb","private_key_id":"d50803b7daba4e215a928af60d7466cd885adc38","private_key":"-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC0n7vb4lT31HiB\nSjviUfxLPH3Jq729UyzT+QwTWYKYiSJtFos1BAuDebs+AM03wmUePrINiGasoiog\nQ61LuIo9sU2DeCB4xcyP9qH2mTO/zfdPyNzVt20wmHB/KVV3eim+clul0egLEzjx\nkyw7Iao4vy4NxdopTkXFDrACGfmSZ2eB2nMt7mitZx/UUWxgc5DPhs4Y/hUzVavm\no8F9sPSY1ltJqUgsrQFYhJYjo5FB4XO+ehwMkAAYwC70yFF3b+/u/ahkSV87WYVt\nLWu8ERAbITAUJxAZ4vKZQmXW39ffoNPejz8wMPpKknmFg4rR8r8gwcCEt27fjW8s\nJnx+G0z9AgMBAAECggEABgBWrBAhlZhsJpOSWMszkEZiwYwgwkUctLBOK+hp8+p+\nh9RbbLgFL+mgBIffSa5+UJpxrQxuqOa8cpT9EYqAoVseQbOAlLKxwMjHidt+Qi20\nPWTlnX46NQajmj4D1nPrJiZDkEdgp9mMJ06mBhLwxnDntVJxFLVCkTETPQai6a/S\njjXLY+jo8y4nBkEQJnj564Osq4WgfeKhGQwdov26SJGEoZgHOqLBqr9Myyb2utUL\nn66Ymz/pNC7Q0OpNz+EOTyeQFdOcR/0BnIIhOnj7TbHS5NcVjbB+R/4uBa+eHf83\nNR181bcH/o7o+V6ynW55WOJJk6RYzNHhIbrw0E3mcQKBgQDfllw+T9LA9e2ocnzB\nvzexSytVFExK8+F4flSHCYXcYhdfgBNqTwywBM+3jn501H1pCLCAcYj/d+29cQnk\nbRJ4vg1LpBPiaQKYORJydd7BE1fY2SqsUjr8JhusnggpjjdCEU4McEFtkTNPghqR\nDgfbbUpvlbU7dBSvo6qy238NSQKBgQDOzvEsnS0hVABodlXxDDQ+c+MQPnF61KGG\nRU74uMi35HkgOEFMed+IWPEtEEPeUVGl3tnbWDBkIwYsLqu0ywM2JwUGloI+2kzc\n6z6vm2g9Msz5kd6odw8hXO+VUkdzWF5RZT6eH1s3Ly8idMhDwgapOoiaXKXcDHUM\n7/3tlOOGFQKBgQCaz/+63YZuOVp/YhZkCMTFK+krFczlsQwTZFWe0scvG3RXmdTX\nrTh5wDsbO7zvpBnZ2jxsEzDqwt2IaHaTBbreg6mtEET8Zf137TyKqHa+dWhEK8pS\nWvWglbpfwWShcWltg5HpJukGtp0ylkFS4sYp9vitXpmIOw3/t3GAOl80kQKBgQCZ\nXXwa4sCqG5pl3YPkS3Ge8t/rlvMe7PqQEWv8JUSsouF0lGNQbHzpp1PLYGmEP/f1\nsysKb/8K87JLJ50saPULvqoKdalHJSqlFkuZfP0zjS3W0mc1tX1h94Kw0KCuGFVx\ntUxXhNdnODWTLtmo7gV0kDTnjFdvtUlEe+Fqw+Rq9QKBgCAKjvrK0V/8Cidi1k/8\nDEnsgdSpEXSSRZ6PvVMEJN9kMRDVHWsl4wHO53tL/jTw38/ej5qfL7m6c2ar+DSA\ntLgdR1PdBiUGpZocJBJU+/JNrSejzTcBlSUCJr/GWm4XRnbILoaMCS30qOQ7IKQa\ndnVuHfEINmIBTMMT+eAI/T/B\n-----END PRIVATE KEY-----\n","client_email":"firebase-adminsdk-padc2@anubis-c9edb.iam.gserviceaccount.com","client_id": "115433493371176591403","auth_uri": "https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-padc2%40anubis-c9edb.iam.gserviceaccount.com"}
-
+const serviceAccount = JSON.parse(process.env.GOOGLE_CREDS);
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://anubis-c9edb-default-rtdb.firebaseio.com"
 });
 
 const db = admin.database()
-
-// firebase.initializeApp(firebaseConfig)
 
 async function getInfo(fullTag) {
 
