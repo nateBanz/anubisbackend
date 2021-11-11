@@ -77,9 +77,7 @@ async function addTextInfo () {
     }
 
 }
-async function logout() {
-    await db.signOut()
-}
+
 async function setBattleTag(id, battletag) {
     await db.ref('/users/' + id).update(
         {tag: battletag}
@@ -87,18 +85,22 @@ async function setBattleTag(id, battletag) {
 }
 async function addUserToFirebase(result) {
     console.log(result)
-    let signIn = {signIn: false, result: result.user.uid}
-    try {
-        if (result.additionalUserInfo.isNewUser) {
-            signIn.signIn = true
-            await db.ref('/users/' + result.user.uid).update(
-                {email: result.user.email}
-            )
+    if(result && result.hasOwnProperty('user')) {
+        let signIn = {signIn: false, result: result.user.uid}
+        try {
+            if (result.additionalUserInfo.isNewUser) {
+                signIn.signIn = true
+                await db.ref('/users/' + result.user.uid).update(
+                    {email: result.user.email}
+                )
+            }
+            return signIn
+        } catch (e) {
+            return e
         }
-        return signIn
     }
-    catch (e) {
-        return e
+    else {
+        return {error: 'User is not found (null), try again'}
     }
 }
 let login = async (googleUser, username = undefined, password = undefined) => {
