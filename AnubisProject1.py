@@ -10,7 +10,6 @@ import sklearn.preprocessing as scale
 data = json.loads((sys.argv[1]))
 updatedDf = pd.read_csv("dfForAnubis.csv")
 upDf = pd.read_csv("finalDf.csv")
-# model = tf.keras.models.load_model("anubisModel.h5")
 inputData = {}  # This will be what is flattened
 dict_flattened = [fj.flatten(data, ".", root_keys_to_ignore={"topHeroes", "quickPlayStats", "icon", "ratingIcon",
                                                              "levelIcon", "prestigeIcon", "endorsement",
@@ -90,8 +89,8 @@ scalar = scale.StandardScaler()
 scaler = joblib.load("AnubisScalar")
 imputer = joblib.load("AnubisImputer")
 
-clean_xtest = df.drop(["tankLevel", "dpsLevel", "supportLevel", "rating"], axis=1)
-y = df[["tankLevel", "dpsLevel", "supportLevel"]]
+clean_xtest = df.drop(["tankLevel", "dpsLevel", "supportLevel", "rating"], axis=1, errors='ignore')
+y = df.filter(items=["tankLevel", "dpsLevel", "supportLevel"])
 print(json.dumps(y.values.tolist()))
 final_xtest = clean_xtest.select_dtypes(include="number")
 common = (final_xtest.columns & upDf.columns)
